@@ -293,17 +293,18 @@ st.markdown("---")
 col_profile, col_attribution = st.columns([1, 1])
 
 with col_profile:
-    st.markdown("### 👤 About the Researcher")
+    st.markdown("### 👤 About the Researcher & Supervision")
     st.markdown(
         "**Cakra Mahasurya Atmojo Pamungkas**\n\n"
         "This interactive dashboard is part of an ongoing research framework continuing from a Master of Science "
-        "dissertation project submitted to the **Department of Meteorology, University of Reading** "
-        "(*Graduated with Distinction; Awarded Best Dissertation*).\n\n"
+        "dissertation project submitted to the **Department of Meteorology, University of Reading**[cite: 1].\n\n"
+        "🎖️ *Graduated with Distinction; Awarded Best Dissertation*[cite: 1]\n\n"
+        "🎓 **Academic Supervision:**\n"
+        "* **Supervisor:** Prof. Joy Singarayer – Department of Meteorology, University of Reading[cite: 1]\n\n"
         "The project is developed in alignment with modern hydro-climatological monitoring initiatives to assist heritage engineering "
         "and climate adaptation efforts in high-altitude mountain environments."
     )
     st.markdown("🔗 **Connect via Professional Profile:** [LinkedIn Portfolio](https://www.linkedin.com/in/cakra-mahasurya-atmojo-pamungkas)")
-
 with col_attribution:
     st.markdown("### 🗄️ Primary Dataset Attribution")
     st.markdown(
