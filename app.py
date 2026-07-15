@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
+import pymannkendall as mk
 import io
 
 # Page configuration
@@ -17,8 +18,8 @@ st.markdown("## *IN CORDILLERA NEGRA, PERU*")
 
 st.info(
     "**Research Framework:** This project is an ongoing extension of an MSc dissertation completed at the "
-    "University of Reading, investigating localized hydro-climatic extreme indices across an operational "
-    "climate baseline (1996–2025). These metrics provide empirical boundary conditions to guide structural stability, "
+    "University of Reading, investigating localized hydro-climatic extreme indices across a clean "
+    "30-year baseline timeline (1996–2025). These metrics provide empirical boundary conditions to guide structural stability, "
     "spillway calculations, and storage reliability for ancient water infrastructure restoration."
 )
 st.markdown("---")
@@ -34,7 +35,23 @@ def load_raw_daily_data(file_path):
     df["Date"] = pd.to_datetime(df["Date"])
     return df
 
-# Baseline File Mappings
+# Helper Function for On-The-Fly Mann-Kendall Trend Calculations
+def calculate_trend_summary(y_values):
+    """Computes Mann-Kendall statistical trend and returns a formatted text summary."""
+    try:
+        res = mk.original_test(y_values)
+        trend_status = res.trend.title()
+        p_val = res.p
+        
+        # Standard 95% confidence alpha threshold (p < 0.05)
+        if p_val < 0.05:
+            return f"✨ **Statistically Significant {trend_status} Trend** (p = {p_val:.4f})"
+        else:
+            return f"⚪ **No Statistically Significant Trend** (p = {p_val:.4f})"
+    except Exception:
+        return "⚠️ Trend test calculation error"
+
+# Baseline File Mappings (Cleaned 1996-2025 30-Year Data Matrices)
 site_paths = {
     "Shukkloc (Proposed System)": "data/shukkloc_proposed_master_metrics_1996_2025.csv",
     "Ricococha / Weetacocha Grid Matrix": "data/ricococha_weetacocha_grid_master_metrics_1996_2025.csv"
@@ -157,6 +174,11 @@ try:
                             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                         )
                         st.plotly_chart(fig, use_container_width=True)
+                        
+                        # Calculate and render Mann-Kendall statistics for upload arrays
+                        mk_summary = calculate_trend_summary(y)
+                        st.markdown(f"**Trend Context (Mann-Kendall):** {mk_summary}")
+                        st.markdown("---")
         else:
             st.warning("📥 Awaiting file upload. Download the format template from the left panel to test with custom parameters.")
             
@@ -179,6 +201,13 @@ try:
                     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                 )
                 st.plotly_chart(fig, use_container_width=True)
+                
+                # Double trend output cards for comparison layouts
+                mk_shuk = calculate_trend_summary(df_shuk[metric].values)
+                mk_rico = calculate_trend_summary(df_rico[metric].values)
+                st.markdown(f"**Shukkloc System:** {mk_shuk}")
+                st.markdown(f"**Ricococha / Weetacocha Matrix:** {mk_rico}")
+                st.markdown("---")
         else:
             selected_site = st.sidebar.selectbox("Select Target Location:", list(site_paths.keys()))
             df = load_processed_data(site_paths[selected_site])
@@ -214,6 +243,11 @@ try:
                     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                 )
                 st.plotly_chart(fig, use_container_width=True)
+                
+                # Output calculated stats card below single layout graph Canvas
+                mk_summary = calculate_trend_summary(y)
+                st.markdown(f"**Statistical Significance Summary (Mann-Kendall):** {mk_summary}")
+                st.markdown("---")
 
     if data_source == "Use Baseline Research Sites":
         st.markdown("---")
@@ -297,10 +331,10 @@ with col_profile:
     st.markdown(
         "**Cakra Mahasurya Atmojo Pamungkas**\n\n"
         "This interactive dashboard is an ongoing research framework continuing from a Master of Science "
-        "dissertation project submitted to the **Department of Meteorology, University of Reading**.\n\n"
-        "🎖️ *Graduated with Distinction; Awarded Best Dissertation*\n\n"
+        "dissertation project submitted to the **Department of Meteorology, University of Reading**[cite: 1].\n\n"
+        "🎖️ *Graduated with Distinction; Awarded Best Dissertation*[cite: 1]\n\n"
         "🎓 **Academic Supervision:**\n"
-        "* **Supervisor:** Prof. Joy Singarayer – Department of Meteorology, University of Reading\n\n"
+        "* **Supervisor:** Prof. Joy Singarayer – Department of Meteorology, University of Reading[cite: 1]\n\n"
         "The project is developed in alignment with modern hydro-climatological monitoring initiatives to assist heritage engineering "
         "and climate adaptation efforts in high-altitude mountain environments."
     )
