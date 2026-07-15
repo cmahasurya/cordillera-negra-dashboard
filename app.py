@@ -16,10 +16,10 @@ st.title("🏛️ INVESTIGATING EXTREME WEATHER AND POSSIBLE IMPACTS ON PRE-HISP
 st.markdown("## *IN CORDILLERA NEGRA, PERU*")
 
 st.info(
-    "**Research Framework:** Analyzing localized hydro-climatic extreme indices across a clean "
-    "30-year operational climate baseline (1996–2025). These metrics provide empirical boundary "
-    "conditions to guide structural stability, spillway calculations, and storage reliability "
-    "for ancient water infrastructure restoration."
+    "**Research Framework:** This project is an ongoing extension of an MSc dissertation completed at the "
+    "University of Reading, investigating localized hydro-climatic extreme indices across an operational "
+    "climate baseline (1996–2025). These metrics provide empirical boundary conditions to guide structural stability, "
+    "spillway calculations, and storage reliability for ancient water infrastructure restoration."
 )
 st.markdown("---")
 
@@ -115,10 +115,8 @@ y_units = {
 try:
     if data_source == "📤 Upload Custom Annual Metrics File":
         if uploaded_file is not None:
-            # Parse user provided runtime file object
             df = pd.read_csv(uploaded_file)
             
-            # Basic validation block checking for minimum structural index criteria
             if "Year" not in df.columns or not any(m in df.columns for m in metrics_to_plot):
                 st.error("❌ Format Mismatch! Please verify your uploaded spreadsheet contains a 'Year' column and correct core metric index names.")
             else:
@@ -160,10 +158,9 @@ try:
                         )
                         st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("📥 Awaiting file upload. Download the format template template from the left panel to test with custom parameters.")
+            st.warning("📥 Awaiting file upload. Download the format template from the left panel to test with custom parameters.")
             
     else:
-        # Standard execution block logic for primary research site baselines
         if "Compare" in view_mode:
             st.subheader("📊 Cross-Catchment Comparative Baseline Analytics")
             df_shuk = load_processed_data(site_paths["Shukkloc (Proposed System)"])
@@ -218,7 +215,6 @@ try:
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
-    # --- RENDER CONTINUOUS RAW RAIN DATA MATRIX IF SITES SELECTED ---
     if data_source == "Use Baseline Research Sites":
         st.markdown("---")
         st.subheader("🌧️ Raw Daily Precipitation Temporal Explorer")
@@ -291,3 +287,30 @@ try:
 
 except FileNotFoundError:
     st.error("❌ Component files missing. Verify your CSV assets exist inside the /data and /raw_daily workspace subdirectories.")
+
+# --- RESEARCHER PROFILE & DATA ATTRIBUTION FOOTER ---
+st.markdown("---")
+col_profile, col_attribution = st.columns([1, 1])
+
+with col_profile:
+    st.markdown("### 👤 About the Researcher")
+    st.markdown(
+        "**Cakra Mahasurya Atmojo Pamungkas**\n\n"
+        "This interactive dashboard is part of an ongoing research framework continuing from a Master of Science "
+        "dissertation project submitted to the **Department of Meteorology, University of Reading** "
+        "(*Graduated with Distinction; Awarded Best Dissertation*).\n\n"
+        "The project is developed in alignment with modern hydro-climatological monitoring initiatives to assist heritage engineering "
+        "and climate adaptation efforts in high-altitude mountain environments."
+    )
+    st.markdown("🔗 **Connect via Professional Profile:** [LinkedIn Portfolio](https://www.linkedin.com/in/cakra-mahasurya-atmojo-pamungkas)")
+
+with col_attribution:
+    st.markdown("### 🗄️ Primary Dataset Attribution")
+    st.markdown(
+        "The empirical baseline forcing values and daily time-series matrices driving this application are derived from:\n\n"
+        "> **Dataset:** Peruvian Interpolated data of the SENAMHI’s Climatological and Hydrological Observations (PISCOp) v3.0\n"
+        "> **Type:** High-resolution gridded daily rainfall arrays for Peru\n"
+        "> **Repository:** [PISCOp v3.0 Dataset on Figshare](https://figshare.com)\n\n"
+        "Special acknowledgment is extended to the *Servicio Nacional de Meteorología e Hidrología del Perú (SENAMHI)* and "
+        "the academic development programs supporting transparent, open-science replication structures."
+    )
