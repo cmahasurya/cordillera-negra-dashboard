@@ -18,7 +18,7 @@ st.markdown("## *IN CORDILLERA NEGRA, PERU*")
 
 st.info(
     "**Research Framework:** This project is an ongoing extension of an MSc dissertation completed at the "
-    "University of Reading, investigating localized hydro-climatic extreme indices across a clean "
+    "Department of Meteorology, University of Reading, investigating localized hydro-climatic extreme indices across a clean "
     "30-year baseline timeline (1996–2025). These metrics provide empirical boundary conditions to guide structural stability, "
     "spillway calculations, and storage reliability for ancient water infrastructure restoration."
 )
@@ -202,10 +202,13 @@ try:
             
             for metric in metrics_to_plot:
                 fig = go.Figure()
+                
+                # Raw Shukkloc Trace
                 fig.add_trace(go.Scatter(x=df_shuk["Year"], y=df_shuk[metric], mode="lines+markers", name="Shukkloc System", line=dict(color="#1f77b4", width=2.5)))
+                # Raw Ricococha Trace
                 fig.add_trace(go.Scatter(x=df_rico["Year"], y=df_rico[metric], mode="lines+markers", name="Ricococha Grid Matrix", line=dict(color="#ff7f0e", width=2.5)))
                 
-                # Plot standard regression over comparison chart using Shukkloc as baseline
+                # --- TREND LINE FOR SHUKKLOC ---
                 x_shuk, y_shuk = df_shuk["Year"].values, df_shuk[metric].values
                 z_shuk = np.polyfit(x_shuk, y_shuk, 1)
                 p_shuk = np.poly1d(z_shuk)
@@ -219,6 +222,20 @@ try:
                     line=dict(color=line_color_shuk, width=2, dash="dash")
                 ))
                 
+                # --- TREND LINE FOR RICOCOCHA ---
+                x_rico, y_rico = df_rico["Year"].values, df_rico[metric].values
+                z_rico = np.polyfit(x_rico, y_rico, 1)
+                p_rico = np.poly1d(z_rico)
+                
+                is_sig_rico, p_rico_val, trend_rico, slope_rico, mk_rico = calculate_trend_summary(y_rico)
+                line_color_rico = "red" if is_sig_rico else "white"
+                
+                fig.add_trace(go.Scatter(
+                    x=x_rico, y=p_rico(x_rico), mode="lines", 
+                    name=f"Ricococha Trend (Slope: {slope_rico:+.2f})", 
+                    line=dict(color=line_color_rico, width=2, dash="dash")
+                ))
+                
                 fig.update_layout(
                     title=f"Comparative Dynamics for {metric} (1996-2025)",
                     xaxis_title="Year",
@@ -229,10 +246,9 @@ try:
                 )
                 st.plotly_chart(fig, use_container_width=True)
                 
-                # Double trend output cards for comparison layouts
-                _, _, _, _, mk_rico = calculate_trend_summary(df_rico[metric].values)
-                st.markdown(f"**Shukkloc System:** {mk_shuk}")
-                st.markdown(f"**Ricococha / Weetacocha Matrix:** {mk_rico}")
+                # Output stats blocks for both series
+                st.markdown(f"**Shukkloc System Summary:** {mk_shuk}")
+                st.markdown(f"**Ricococha / Weetacocha Matrix Summary:** {mk_rico}")
                 st.markdown("---")
         else:
             selected_site = st.sidebar.selectbox("Select Target Location:", list(site_paths.keys()))
@@ -361,10 +377,10 @@ with col_profile:
     st.markdown(
         "**Cakra Mahasurya Atmojo Pamungkas**\n\n"
         "This interactive dashboard is an ongoing research framework continuing from a Master of Science "
-        "dissertation project submitted to the **Department of Meteorology, University of Reading**[cite: 1].\n\n"
-        "🎖️ *Graduated with Distinction; Awarded Best Dissertation*[cite: 1]\n\n"
+        "dissertation project submitted to the **Department of Meteorology, University of Reading**.\n\n"
+        "🎖️ *Graduated with Distinction; Awarded Best Dissertation*\n\n"
         "🎓 **Academic Supervision:**\n"
-        "* **Supervisor:** Prof. Joy Singarayer – Department of Meteorology, University of Reading[cite: 1]\n\n"
+        "* **Supervisor:** Prof. Joy Singarayer – Department of Meteorology, University of Reading\n\n"
         "The project is developed in alignment with modern hydro-climatological monitoring initiatives to assist heritage engineering "
         "and climate adaptation efforts in high-altitude mountain environments."
     )
