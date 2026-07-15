@@ -309,8 +309,10 @@ with col_attribution:
     st.markdown(
         "The empirical baseline forcing values and daily time-series matrices driving this application are derived from:\n\n"
         "> **Dataset:** Peruvian Interpolated data of the SENAMHI’s Climatological and Hydrological Observations (PISCOp) v3.0\n"
-        "> **Type:** High-resolution gridded daily rainfall arrays for Peru\n"
-        "> **Repository:** [PISCOp v3.0 Dataset on Figshare](https://figshare.com)\n\n"
-        "Special acknowledgment is extended to the *Servicio Nacional de Meteorología e Hidrología del Perú (SENAMHI)* and "
-        "the academic development programs supporting transparent, open-science replication structures."
+        "> **Type:** High-resolution gridded daily and monthly rainfall arrays for Peru\n"
+        "> **Authors:** Leonardo Gutierrez & Waldo Lavado-Casimiro\n"
+        "> **Repository Reference & Persistent Identifier:**\n"
+        "> 🔗 [https://doi.org/10.6084/m9.figshare.32411886](https://doi.org/10.6084/m9.figshare.32411886)\n\n"
+        "Special acknowledgment is extended to the authors and the *Servicio Nacional de Meteorología e Hidrología del Perú (SENAMHI)* for "
+        "maintaining transparent, open-science replication pipelines via the Figshare data ecosystem."
     )
