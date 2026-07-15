@@ -97,16 +97,11 @@ try:
         ))
         
         # Cleaned and theme-adaptive layout configuration
+        # Standard configuration compliant with all Plotly/Streamlit versions
         fig.update_layout(
             title=f"Temporal Dynamics for {metric}",
             xaxis_title="Year",
             yaxis_title=y_units.get(metric, "Scale Value"),
-            template="none", 
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="auto"),
-            xaxis=dict(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False),
-            yaxis=dict(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False),
             height=380,
             margin=dict(l=20, r=20, t=50, b=20),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
