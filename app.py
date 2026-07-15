@@ -93,28 +93,24 @@ try:
         # Draw Trend line
         fig.add_trace(go.Scatter(
             x=x, y=p(x), mode="lines", name="Linear Trend Profile",
-            line=dict(color='black', width=2, dash='dash')
+            line=dict(color='gray', width=2, dash='dash')
         ))
         
+        # Cleaned and theme-adaptive layout configuration
         fig.update_layout(
             title=f"Temporal Dynamics for {metric}",
             xaxis_title="Year",
             yaxis_title=y_units.get(metric, "Scale Value"),
-            
-            # Remove the hardcoded white background so it inherits Streamlit's theme
             template="none", 
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            
-            # Automatically adjust text and gridlines based on the user's theme color
             font=dict(color="auto"),
             xaxis=dict(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False),
             yaxis=dict(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False),
-            
             height=380,
             margin=dict(l=20, r=20, t=50, b=20),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-        ))
+        )
         
         st.plotly_chart(fig, use_container_width=True)
 
