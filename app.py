@@ -35,21 +35,29 @@ def load_raw_daily_data(file_path):
     df["Date"] = pd.to_datetime(df["Date"])
     return df
 
-# Helper Function for On-The-Fly Mann-Kendall Trend Calculations
+# Helper Function for On-The-Fly Mann-Kendall and Theil-Sen Slope Calculations
 def calculate_trend_summary(y_values):
-    """Computes Mann-Kendall statistical trend and returns a formatted text summary."""
+    """Computes Mann-Kendall trend and Theil-Sen slope, returning a formatted text summary and stats."""
     try:
-        res = mk.original_test(y_values)
-        trend_status = res.trend.title()
-        p_val = res.p
+        # 1. Run Mann-Kendall Test
+        mk_res = mk.original_test(y_values)
+        trend_status = mk_res.trend.title()
+        p_val = mk_res.p
         
-        # Standard 95% confidence alpha threshold (p < 0.05)
-        if p_val < 0.05:
-            return f"✨ **Statistically Significant {trend_status} Trend** (p = {p_val:.4f})"
+        # 2. Compute Theil-Sen Slope
+        sen_res = mk.sens_slope(y_values)
+        slope_val = sen_res.slope
+        
+        is_significant = p_val < 0.05
+        
+        if is_significant:
+            summary = f"✨ **Statistically Significant {trend_status} Trend** (p = {p_val:.4f}) | **Theil-Sen Slope:** {slope_val:+.4f} units/year"
         else:
-            return f"⚪ **No Statistically Significant Trend** (p = {p_val:.4f})"
+            summary = f"⚪ **No Statistically Significant Trend** (p = {p_val:.4f}) | **Theil-Sen Slope:** {slope_val:+.4f} units/year"
+            
+        return is_significant, p_val, trend_status, slope_val, summary
     except Exception:
-        return "⚠️ Trend test calculation error"
+        return False, 1.0, "Error", 0.0, "⚠️ Trend test calculation error"
 
 # Baseline File Mappings (Cleaned 1996-2025 30-Year Data Matrices)
 site_paths = {
@@ -157,13 +165,20 @@ try:
                         z = np.polyfit(x, y, 1)
                         p = np.poly1d(z)
                         
+                        is_significant, p_val, trend_status, slope_val, mk_summary = calculate_trend_summary(y)
+                        line_color = "red" if is_significant else "white"
+                        
                         fig = go.Figure()
                         if "Frequency" in metric or "mm" in metric and "SDII" not in metric:
                             fig.add_trace(go.Bar(x=x, y=y, name="Annual Metric Value", opacity=0.7, marker_color="rgb(44, 160, 44)"))
                         else:
                             fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", name="Annual Metric Value", line=dict(color="#2ca02c")))
                             
-                        fig.add_trace(go.Scatter(x=x, y=p(x), mode="lines", name="Linear Trend Profile", line=dict(color="gray", dash="dash")))
+                        fig.add_trace(go.Scatter(
+                            x=x, y=p(x), mode="lines", 
+                            name=f"Trend Line (Slope: {slope_val:+.2f})", 
+                            line=dict(color=line_color, width=2, dash="dash")
+                        ))
                         
                         fig.update_layout(
                             title=f"Temporal Dynamics for Custom Array: {metric}",
@@ -174,9 +189,6 @@ try:
                             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                         )
                         st.plotly_chart(fig, use_container_width=True)
-                        
-                        # Calculate and render Mann-Kendall statistics for upload arrays
-                        mk_summary = calculate_trend_summary(y)
                         st.markdown(f"**Trend Context (Mann-Kendall):** {mk_summary}")
                         st.markdown("---")
         else:
@@ -192,6 +204,21 @@ try:
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(x=df_shuk["Year"], y=df_shuk[metric], mode="lines+markers", name="Shukkloc System", line=dict(color="#1f77b4", width=2.5)))
                 fig.add_trace(go.Scatter(x=df_rico["Year"], y=df_rico[metric], mode="lines+markers", name="Ricococha Grid Matrix", line=dict(color="#ff7f0e", width=2.5)))
+                
+                # Plot standard regression over comparison chart using Shukkloc as baseline
+                x_shuk, y_shuk = df_shuk["Year"].values, df_shuk[metric].values
+                z_shuk = np.polyfit(x_shuk, y_shuk, 1)
+                p_shuk = np.poly1d(z_shuk)
+                
+                is_sig_shuk, p_shuk_val, trend_shuk, slope_shuk, mk_shuk = calculate_trend_summary(y_shuk)
+                line_color_shuk = "red" if is_sig_shuk else "white"
+                
+                fig.add_trace(go.Scatter(
+                    x=x_shuk, y=p_shuk(x_shuk), mode="lines", 
+                    name=f"Shukkloc Trend (Slope: {slope_shuk:+.2f})", 
+                    line=dict(color=line_color_shuk, width=2, dash="dash")
+                ))
+                
                 fig.update_layout(
                     title=f"Comparative Dynamics for {metric} (1996-2025)",
                     xaxis_title="Year",
@@ -203,8 +230,7 @@ try:
                 st.plotly_chart(fig, use_container_width=True)
                 
                 # Double trend output cards for comparison layouts
-                mk_shuk = calculate_trend_summary(df_shuk[metric].values)
-                mk_rico = calculate_trend_summary(df_rico[metric].values)
+                _, _, _, _, mk_rico = calculate_trend_summary(df_rico[metric].values)
                 st.markdown(f"**Shukkloc System:** {mk_shuk}")
                 st.markdown(f"**Ricococha / Weetacocha Matrix:** {mk_rico}")
                 st.markdown("---")
@@ -226,13 +252,20 @@ try:
                 z = np.polyfit(x, y, 1)
                 p = np.poly1d(z)
                 
+                is_significant, p_val, trend_status, slope_val, mk_summary = calculate_trend_summary(y)
+                line_color = "red" if is_significant else "white"
+                
                 fig = go.Figure()
                 if "Frequency" in metric or "mm" in metric and "SDII" not in metric:
                     fig.add_trace(go.Bar(x=x, y=y, name="Annual Metric Value", opacity=0.7, marker_color="rgb(56, 112, 134)"))
                 else:
                     fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", name="Annual Metric Value"))
                     
-                fig.add_trace(go.Scatter(x=x, y=p(x), mode="lines", name="Linear Trend Profile", line=dict(color="gray", dash="dash")))
+                fig.add_trace(go.Scatter(
+                    x=x, y=p(x), mode="lines", 
+                    name=f"Trend Line (Slope: {slope_val:+.2f})", 
+                    line=dict(color=line_color, width=2, dash="dash")
+                ))
                 
                 fig.update_layout(
                     title=f"Temporal Dynamics for {metric}",
@@ -243,9 +276,6 @@ try:
                     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                 )
                 st.plotly_chart(fig, use_container_width=True)
-                
-                # Output calculated stats card below single layout graph Canvas
-                mk_summary = calculate_trend_summary(y)
                 st.markdown(f"**Statistical Significance Summary (Mann-Kendall):** {mk_summary}")
                 st.markdown("---")
 
